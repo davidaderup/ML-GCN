@@ -4,6 +4,7 @@ from util import *
 import torch
 import torch.nn as nn
 
+
 class GraphConvolution(nn.Module):
     """
     Simple GCN layer, similar to https://arxiv.org/abs/1609.02907
@@ -17,11 +18,11 @@ class GraphConvolution(nn.Module):
         if bias:
             self.bias = Parameter(torch.Tensor(1, 1, out_features))
         else:
-            self.register_parameter('bias', None)
+            self.register_parameter("bias", None)
         self.reset_parameters()
 
     def reset_parameters(self):
-        stdv = 1. / math.sqrt(self.weight.size(1))
+        stdv = 1.0 / math.sqrt(self.weight.size(1))
         self.weight.data.uniform_(-stdv, stdv)
         if self.bias is not None:
             self.bias.data.uniform_(-stdv, stdv)
@@ -35,9 +36,14 @@ class GraphConvolution(nn.Module):
             return output
 
     def __repr__(self):
-        return self.__class__.__name__ + ' (' \
-               + str(self.in_features) + ' -> ' \
-               + str(self.out_features) + ')'
+        return (
+            self.__class__.__name__
+            + " ("
+            + str(self.in_features)
+            + " -> "
+            + str(self.out_features)
+            + ")"
+        )
 
 
 class GCNResnet(nn.Module):
@@ -71,7 +77,6 @@ class GCNResnet(nn.Module):
         feature = self.pooling(feature)
         feature = feature.view(feature.size(0), -1)
 
-
         inp = inp[0]
         adj = gen_adj(self.A).detach()
         x = self.gc1(inp, adj)
@@ -84,11 +89,10 @@ class GCNResnet(nn.Module):
 
     def get_config_optim(self, lr, lrp):
         return [
-                {'params': self.features.parameters(), 'lr': lr * lrp},
-                {'params': self.gc1.parameters(), 'lr': lr},
-                {'params': self.gc2.parameters(), 'lr': lr},
-                ]
-
+            {"params": self.features.parameters(), "lr": lr * lrp},
+            {"params": self.gc1.parameters(), "lr": lr},
+            {"params": self.gc2.parameters(), "lr": lr},
+        ]
 
 
 def gcn_resnet101(num_classes, t, pretrained=False, adj_file=None, in_channel=300):
